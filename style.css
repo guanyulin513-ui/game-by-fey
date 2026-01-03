@@ -7,11 +7,13 @@
   --primary2: #7c3aed;
   --shadow: 0 18px 45px rgba(0,0,0,0.12);
 
-  /* ✅ 底部控制區高度（預留空間給 canvas 不被擋） */
-  --dock-h: 150px;
+  /* ✅ 底部控制區高度（加高，避免下鍵被遮） */
+  --dock-h: 170px;
 }
 
-*{ box-sizing: border-box; }
+*{
+  box-sizing: border-box;
+}
 
 body {
   font-family: system-ui, "Noto Sans TC", sans-serif;
@@ -20,7 +22,7 @@ body {
   padding: 18px 12px calc(22px + env(safe-area-inset-bottom));
   color: var(--text);
 
-  /* ✅ 背景淺藍 */
+  /* 淺藍背景 */
   background:
     radial-gradient(900px 520px at 12% 18%, rgba(37,99,235,0.10), transparent 55%),
     radial-gradient(800px 480px at 90% 10%, rgba(124,58,237,0.08), transparent 55%),
@@ -32,9 +34,11 @@ h1{
   letter-spacing: 0.5px;
 }
 
-.hidden { display: none; }
+.hidden{
+  display: none;
+}
 
-/* 浮水印 */
+/* ---------------- 浮水印 ---------------- */
 .watermark{
   position: fixed;
   left: 0;
@@ -47,123 +51,90 @@ h1{
   user-select: none;
   z-index: 999;
   will-change: transform, opacity;
-  opacity: 1;
 }
 
-/* ===== 初始選單 ===== */
-.menu{ max-width: 880px; margin: 0 auto; }
+/* ---------------- 起始選單 ---------------- */
+.menu{
+  max-width: 880px;
+  margin: 0 auto;
+}
 
 .menu-card{
   background: var(--card);
-  border: 1px solid rgba(255,255,255,0.55);
   border-radius: 22px;
   box-shadow: var(--shadow);
-  padding: 16px 16px 18px;
+  padding: 16px;
   backdrop-filter: blur(8px);
 }
 
-.menu-header{ padding: 6px 10px 8px; }
+.menu-header{
+  padding-bottom: 10px;
+}
 
 .badge{
   display: inline-block;
   padding: 6px 10px;
   font-size: 12px;
-  letter-spacing: 1.2px;
   border-radius: 999px;
-  color: rgba(255,255,255,0.95);
+  color: #fff;
   background: linear-gradient(90deg, var(--primary), var(--primary2));
 }
 
-.menu-header h2{ margin: 10px 0 4px; font-size: 28px; }
-.subtitle{ margin: 0 0 6px; color: var(--muted); }
+.menu-header h2{
+  margin: 10px 0 4px;
+  font-size: 28px;
+}
+
+.subtitle{
+  margin: 0;
+  color: var(--muted);
+}
 
 .mode-options{
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin: 14px 0 12px;
+  margin: 16px 0;
 }
 
 .mode-btn{
   position: relative;
   border: 2px solid var(--line);
   border-radius: 18px;
-  background: rgba(255,255,255,0.90);
+  background: rgba(255,255,255,0.9);
   padding: 14px 14px 44px;
-  cursor: pointer;
   text-align: left;
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
 }
 
 .mode-btn:hover{
   transform: translateY(-6px);
-  border-color: rgba(37,99,235,0.55);
   box-shadow: 0 18px 45px rgba(0,0,0,0.12);
+  border-color: rgba(37,99,235,0.6);
 }
 
-.mode-top{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 8px;
+.mode-btn.selected{
+  border-color: rgba(37,99,235,0.9);
+  box-shadow: 0 20px 55px rgba(37,99,235,0.14);
 }
 
 .mode-title{
-  display: flex;
-  align-items: center;
-  gap: 10px;
   font-size: 22px;
   font-weight: 900;
-}
-
-.mode-icon{
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: rgba(37,99,235,0.10);
-}
-
-.mode-btn[data-mode="classic"] .mode-icon{
-  background: rgba(124,58,237,0.10);
-}
-
-.mode-check{
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  color: white;
-  background: rgba(17,24,39,0.25);
-  opacity: 0;
-  transform: scale(0.9);
-  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .mode-best{
-  margin: 6px 0 10px;
+  margin: 8px 0;
   font-weight: 800;
-  color: rgba(17,24,39,0.82);
-  background: rgba(37,99,235,0.06);
-  border: 1px solid rgba(37,99,235,0.12);
-  padding: 8px 10px;
-  border-radius: 12px;
-}
-
-.mode-btn[data-mode="classic"] .mode-best{
-  background: rgba(124,58,237,0.06);
-  border-color: rgba(124,58,237,0.12);
 }
 
 .mode-list{
-  margin: 0;
   padding-left: 18px;
-  color: rgba(17,24,39,0.84);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 .mode-tag{
@@ -173,41 +144,16 @@ h1{
   font-size: 12px;
   padding: 6px 10px;
   border-radius: 999px;
-  color: rgba(255,255,255,0.95);
+  color: #fff;
 }
 
-.mode-tag.modern{ background: linear-gradient(90deg, #2563eb, #06b6d4); }
-.mode-tag.classic{ background: linear-gradient(90deg, #7c3aed, #f97316); }
-
-.mode-btn.selected{
-  border-color: rgba(37,99,235,0.90);
-  background: linear-gradient(180deg, rgba(37,99,235,0.06), rgba(124,58,237,0.04));
-  box-shadow: 0 20px 55px rgba(37,99,235,0.14);
+.mode-tag.modern{
+  background: linear-gradient(90deg, #2563eb, #06b6d4);
 }
 
-.mode-btn.selected .mode-check{
-  opacity: 1;
-  transform: scale(1);
-  background: linear-gradient(90deg, var(--primary), var(--primary2));
+.mode-tag.classic{
+  background: linear-gradient(90deg, #7c3aed, #f97316);
 }
-
-.menu-info{
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin: 10px 6px 14px;
-}
-
-.info-item{
-  border: 1px dashed rgba(17,24,39,0.18);
-  border-radius: 14px;
-  padding: 10px 12px;
-  background: rgba(255,255,255,0.80);
-  text-align: left;
-}
-
-.info-title{ font-weight: 900; margin-bottom: 4px; }
-.info-text{ color: rgba(17,24,39,0.78); }
 
 .start-btn{
   font-size: 20px;
@@ -217,30 +163,15 @@ h1{
   color: white;
   background: linear-gradient(90deg, var(--primary), var(--primary2));
   cursor: pointer;
-  box-shadow: 0 16px 40px rgba(37,99,235,0.20);
-  transition: transform 0.15s ease, filter 0.15s ease;
 }
-
-.start-btn:hover{ transform: translateY(-2px); filter: brightness(1.05); }
 
 .start-btn.disabled{
-  background: rgba(17,24,39,0.30);
-  box-shadow: none;
+  background: rgba(17,24,39,0.3);
   cursor: not-allowed;
-  transform: none;
-  filter: none;
 }
 
-.menu-footnote{ margin-top: 10px; font-size: 12px; color: rgba(17,24,39,0.55); }
-
-@media (max-width: 720px){
-  .mode-options{ grid-template-columns: 1fr; }
-  .menu-info{ grid-template-columns: 1fr; }
-  .watermark{ font-size: 28px; }
-}
-
-/* ===== 遊戲 ===== */
-.panel {
+/* ---------------- 遊戲介面 ---------------- */
+.panel{
   display: flex;
   gap: 12px;
   justify-content: center;
@@ -249,24 +180,22 @@ h1{
   margin-bottom: 10px;
 }
 
-#msg {
+#msg{
   margin-top: 10px;
   font-weight: 700;
 }
 
-/* ✅ 預留底部控制區高度，避免 canvas 被擋 */
+/* 預留底部空間，避免被按鍵擋住 */
 #gameUI{
-  padding-bottom: calc(var(--dock-h) + 12px + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--dock-h) + 28px + env(safe-area-inset-bottom));
 }
 
-/* ✅ Canvas 外層容器 */
+/* Canvas 自動縮放 */
 .stage{
   display: grid;
   place-items: center;
-  margin: 8px auto 0;
 }
 
-/* ✅ 關鍵：強制讓 canvas 跟著螢幕縮放（iPhone 也吃得到） */
 canvas#game{
   border: 3px solid #333;
   border-radius: 12px;
@@ -282,16 +211,15 @@ canvas#game{
   touch-action: none;
 }
 
-.panel #time{
-  font-variant-numeric: tabular-nums;
-}
-
-/* ✅ 底部固定十字方向鍵（更集中更大） */
+/* ---------------- 觸控方向鍵 ---------------- */
 .touch-dock{
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(10px + env(safe-area-inset-bottom));
+
+  /* ✅ 往上抬，避免 Safari 底部列遮擋 */
+  bottom: calc(26px + env(safe-area-inset-bottom));
+
   width: min(360px, 96vw);
   height: var(--dock-h);
   display: grid;
@@ -303,22 +231,18 @@ canvas#game{
   width: 240px;
   height: 150px;
 
-  display: grid;                  /* ✅ 保證十字排列 */
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   gap: 12px;
-  justify-items: center;
-  align-items: center;
 
   background: rgba(255,255,255,0.78);
-  border: 1px solid rgba(17,24,39,0.12);
   border-radius: 18px;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.12);
-  backdrop-filter: blur(8px);
   padding: 12px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.12);
 }
 
-/* ✅ 十字位置 */
+/* 十字排列 */
 .touch-btn.up{ grid-column: 2; grid-row: 1; }
 .touch-btn.left{ grid-column: 1; grid-row: 2; }
 .touch-btn.down{ grid-column: 2; grid-row: 3; }
@@ -329,28 +253,29 @@ canvas#game{
   height: 78px;
   border-radius: 18px;
   border: 2px solid rgba(17,24,39,0.14);
-  background: rgba(255,255,255,0.92);
-  box-shadow: 0 12px 26px rgba(0,0,0,0.12);
-  cursor: pointer;
+  background: white;
   font-size: 26px;
   font-weight: 900;
-  color: rgba(17,24,39,0.86);
-
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-
-  transition: transform 0.08s ease, filter 0.12s ease, background 0.12s ease;
 }
 
 .touch-btn:active{
-  transform: translateY(1px) scale(0.98);
-  filter: brightness(0.98);
-  background: rgba(37,99,235,0.12);
+  transform: scale(0.96);
+  background: rgba(37,99,235,0.15);
 }
 
 /* 小手機再縮一點 */
 @media (max-width: 360px){
-  :root{ --dock-h: 138px; }
-  .touch-pad{ width: 222px; height: 138px; gap: 10px; padding: 10px; }
-  .touch-btn{ width: 70px; height: 70px; font-size: 24px; border-radius: 16px; }
+  :root{
+    --dock-h: 150px;
+  }
+  .touch-pad{
+    width: 220px;
+    height: 140px;
+    gap: 10px;
+  }
+  .touch-btn{
+    width: 68px;
+    height: 68px;
+    font-size: 24px;
+  }
 }
