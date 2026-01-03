@@ -67,8 +67,7 @@ let showGameOver = false;
 // ✅ Best scores separated by mode
 let bestScores = { modern: 0, classic: 0 };
 
-// ✅ 計時機制（mm:ss）
-// 只在 running && !paused && !dead 時累積
+// ✅ 計時（本局時間 mm:ss）
 let elapsedMs = 0;
 let lastTimeStamp = null;
 let timerUiId = null;
@@ -77,9 +76,7 @@ function formatTime(ms) {
   const totalSec = Math.floor(ms / 1000);
   const m = Math.floor(totalSec / 60);
   const s = totalSec % 60;
-  const mm = String(m).padStart(2, "0");
-  const ss = String(s).padStart(2, "0");
-  return `${mm}:${ss}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
 function updateTimeUI() {
@@ -130,12 +127,12 @@ function stopTimerUI() {
     if (gameUIEl && !gameUIEl.classList.contains("hidden")) {
       const panel = document.querySelector(".panel");
       const msg = document.getElementById("msg");
-      const touchControls = document.querySelector(".touch-controls");
+      const touchDock = document.querySelector(".touch-dock");
 
       if (panel) rects.push(panel.getBoundingClientRect());
       if (canvas) rects.push(canvas.getBoundingClientRect());
       if (msg) rects.push(msg.getBoundingClientRect());
-      if (touchControls) rects.push(touchControls.getBoundingClientRect());
+      if (touchDock) rects.push(touchDock.getBoundingClientRect());
     }
 
     return rects;
@@ -240,7 +237,7 @@ startModeBtn.addEventListener("click", () => {
   restartCurrentMode(false);
 
   msgEl.textContent =
-    "按「開始」或方向鍵/WASD開始｜觸控：按方向鍵或滑動畫布｜Space 暫停｜死亡後按任意鍵/點一下重開";
+    "按「開始」或方向鍵/WASD開始｜手機：底部方向鍵或滑動畫布｜Space 暫停｜死亡後按任意鍵/點一下重開";
 });
 
 // 重新開始按鈕：回到模式選單
@@ -249,6 +246,7 @@ restartBtn.addEventListener("click", () => {
   menuEl.classList.remove("hidden");
   gameUIEl.classList.add("hidden");
   resetMenuUI();
+
   elapsedMs = 0;
   lastTimeStamp = null;
   updateTimeUI();
@@ -399,7 +397,6 @@ function resetGame() {
   showGameOver = false;
   eatFlashFrames = 0;
 
-  // ✅ 重置計時
   elapsedMs = 0;
   lastTimeStamp = null;
   updateTimeUI();
@@ -408,7 +405,7 @@ function resetGame() {
   updateBestDisplay();
 
   msgEl.textContent =
-    `${currentModeName()}｜鍵盤：方向鍵/WASD｜觸控：按方向鍵或滑動畫布｜Space暫停｜死亡後按任意鍵/點一下重開`;
+    `${currentModeName()}｜鍵盤：方向鍵/WASD｜手機：底部方向鍵或滑動畫布｜Space暫停｜死亡後按任意鍵/點一下重開`;
 }
 
 function restartCurrentMode(autoStart) {
@@ -610,7 +607,6 @@ function step() {
   if (!running || dead) return;
   if (paused) return;
 
-  // ✅ 累積遊戲時間（只在真正運行時）
   const now = performance.now();
   if (lastTimeStamp == null) lastTimeStamp = now;
   elapsedMs += (now - lastTimeStamp);
@@ -685,12 +681,11 @@ function startMoveLoop() {
   loopId = setInterval(step, speedMs);
   running = true;
 
-  // ✅ 計時：開始時更新時間戳 + 開 UI 更新
   lastTimeStamp = performance.now();
   startTimerUI();
 
   msgEl.textContent =
-    `${currentModeName()} 遊戲中｜鍵盤：方向鍵/WASD｜觸控：按方向鍵或滑動畫布｜Space 暫停`;
+    `${currentModeName()} 遊戲中｜鍵盤：方向鍵/WASD｜手機：底部方向鍵或滑動畫布｜Space 暫停`;
 }
 
 function startGameBtn() {
@@ -743,14 +738,10 @@ window.addEventListener("keydown", (e) => {
     return;
   }
 
-  // Space pause
   if (e.code === "Space") {
     if (!running) return;
     paused = !paused;
-
-    // ✅ 從暫停回來，避免把暫停時間算進去
     if (!paused) lastTimeStamp = performance.now();
-
     msgEl.textContent = paused
       ? `⏸ 已暫停（按 Space 繼續）｜${currentModeName()}`
       : `▶ 已繼續｜${currentModeName()}`;
@@ -773,15 +764,13 @@ window.addEventListener("keydown", (e) => {
   e.preventDefault();
 });
 
-// Touch D-pad buttons
+// Touch buttons
 function bindTouchButton(btn, dirObj) {
   if (!btn) return;
   btn.addEventListener("pointerdown", (e) => {
     if (gameUIEl.classList.contains("hidden")) return;
-
     ensureAudio();
     applyDir(dirObj, true);
-
     e.preventDefault();
   });
 }
@@ -806,7 +795,6 @@ canvas.addEventListener("pointerdown", (e) => {
 
   swipeStart = { x: e.clientX, y: e.clientY };
 
-  // 點一下畫布可開始（不改方向）
   if (!running && !paused) {
     ensureAudio();
     startMoveLoop();
@@ -841,7 +829,8 @@ canvas.addEventListener("pointerup", (e) => {
   e.preventDefault();
 });
 
-// ===== Boot =====
+// -------------------- Boot --------------------
 loadBestScores();
 resetMenuUI();
 updateTimeUI();
+drawGameScene();
