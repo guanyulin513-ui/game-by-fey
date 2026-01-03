@@ -23,11 +23,9 @@ const bestClassicCardEl = document.getElementById("bestClassicCard");
 const watermarkEl = document.getElementById("watermark");
 const menuCardEl = document.getElementById("menuCard");
 
-// ✅ 觸控按鈕
-const btnUp = document.getElementById("btnUp");
-const btnDown = document.getElementById("btnDown");
-const btnLeft = document.getElementById("btnLeft");
-const btnRight = document.getElementById("btnRight");
+// ✅ 虛擬搖桿
+const joystickEl = document.getElementById("joystick");
+const joyKnobEl = document.getElementById("joyKnob");
 
 // ===== Grid =====
 const CELL = 24; // 480/24=20格
@@ -78,77 +76,44 @@ function formatTime(ms) {
   const s = totalSec % 60;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
-
-function updateTimeUI() {
-  if (!timeEl) return;
-  timeEl.textContent = formatTime(elapsedMs);
-}
-
-function startTimerUI() {
-  if (timerUiId) clearInterval(timerUiId);
-  timerUiId = setInterval(() => updateTimeUI(), 200);
-}
-
-function stopTimerUI() {
-  if (timerUiId) clearInterval(timerUiId);
-  timerUiId = null;
-}
+function updateTimeUI() { if (timeEl) timeEl.textContent = formatTime(elapsedMs); }
+function startTimerUI() { if (timerUiId) clearInterval(timerUiId); timerUiId = setInterval(updateTimeUI, 200); }
+function stopTimerUI() { if (timerUiId) clearInterval(timerUiId); timerUiId = null; }
 
 // -------------------- 浮水印動畫（反彈 + 進入內容隱形） --------------------
 (function initWatermarkBounce() {
   if (!watermarkEl) return;
 
-  let x = 12;
-  let y = 12;
-  let vx = 0.9;
-  let vy = 0.75;
-
+  let x = 12, y = 12, vx = 0.9, vy = 0.75;
   const visibleOpacity = 0.30;
   const hiddenOpacity = 0.0;
 
-  watermarkEl.style.opacity = String(visibleOpacity);
-
   function rectIntersect(a, b) {
-    return !(
-      a.right < b.left ||
-      a.left > b.right ||
-      a.bottom < b.top ||
-      a.top > b.bottom
-    );
+    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
   }
 
   function getObstacleRects() {
     const rects = [];
-
-    if (menuEl && !menuEl.classList.contains("hidden") && menuCardEl) {
-      rects.push(menuCardEl.getBoundingClientRect());
-    }
-
+    if (menuEl && !menuEl.classList.contains("hidden") && menuCardEl) rects.push(menuCardEl.getBoundingClientRect());
     if (gameUIEl && !gameUIEl.classList.contains("hidden")) {
       const panel = document.querySelector(".panel");
       const msg = document.getElementById("msg");
-      const touchDock = document.querySelector(".touch-dock");
-
+      const dock = document.querySelector(".touch-dock");
       if (panel) rects.push(panel.getBoundingClientRect());
       if (canvas) rects.push(canvas.getBoundingClientRect());
       if (msg) rects.push(msg.getBoundingClientRect());
-      if (touchDock) rects.push(touchDock.getBoundingClientRect());
+      if (dock) rects.push(dock.getBoundingClientRect());
     }
-
     return rects;
   }
 
   function tick() {
     const wmRect = watermarkEl.getBoundingClientRect();
-    const w = wmRect.width;
-    const h = wmRect.height;
-
+    const w = wmRect.width, h = wmRect.height;
     const maxX = window.innerWidth - w;
     const maxY = window.innerHeight - h;
 
-    x += vx;
-    y += vy;
-
+    x += vx; y += vy;
     if (x <= 0) { x = 0; vx *= -1; }
     if (y <= 0) { y = 0; vy *= -1; }
     if (x >= maxX) { x = maxX; vx *= -1; }
@@ -159,14 +124,11 @@ function stopTimerUI() {
     const nextRect = watermarkEl.getBoundingClientRect();
     const obstacles = getObstacleRects();
     let hitContent = false;
-    for (const r of obstacles) {
-      if (rectIntersect(nextRect, r)) { hitContent = true; break; }
-    }
+    for (const r of obstacles) { if (rectIntersect(nextRect, r)) { hitContent = true; break; } }
     watermarkEl.style.opacity = hitContent ? String(hiddenOpacity) : String(visibleOpacity);
 
     requestAnimationFrame(tick);
   }
-
   requestAnimationFrame(tick);
 })();
 
@@ -174,27 +136,22 @@ function stopTimerUI() {
 function bestKey(mode) {
   return mode === "classic" ? "snake_best_score_classic" : "snake_best_score_modern";
 }
-
 function loadBestScores() {
   const m = localStorage.getItem(bestKey("modern"));
   const c = localStorage.getItem(bestKey("classic"));
   bestScores.modern = m ? Number(m) : 0;
   bestScores.classic = c ? Number(c) : 0;
-
   updateCardBestLabels();
   updateBestDisplay();
 }
-
 function updateBestDisplay() {
   if (!gameMode) { bestEl.textContent = "0"; return; }
   bestEl.textContent = String(bestScores[gameMode] ?? 0);
 }
-
 function updateCardBestLabels() {
   if (bestModernCardEl) bestModernCardEl.textContent = String(bestScores.modern ?? 0);
   if (bestClassicCardEl) bestClassicCardEl.textContent = String(bestScores.classic ?? 0);
 }
-
 function saveBestScoreIfNeeded() {
   if (!gameMode) return;
   if (score > (bestScores[gameMode] ?? 0)) {
@@ -210,34 +167,28 @@ function setMenuSelected(mode) {
   modeButtons.forEach(b => b.classList.remove("selected"));
   const btn = Array.from(modeButtons).find(b => b.dataset.mode === mode);
   if (btn) btn.classList.add("selected");
-
   gameMode = mode;
   updateBestDisplay();
   startModeBtn.classList.remove("disabled");
 }
-
 function resetMenuUI() {
   modeButtons.forEach(b => b.classList.remove("selected"));
   gameMode = null;
   startModeBtn.classList.add("disabled");
   bestEl.textContent = "0";
 }
-
-modeButtons.forEach(btn => {
-  btn.addEventListener("click", () => setMenuSelected(btn.dataset.mode));
-});
+modeButtons.forEach(btn => btn.addEventListener("click", () => setMenuSelected(btn.dataset.mode)));
 
 startModeBtn.addEventListener("click", () => {
   if (!gameMode) return;
 
   menuEl.classList.add("hidden");
   gameUIEl.classList.remove("hidden");
-
   updateBestDisplay();
-  restartCurrentMode(false);
 
+  restartCurrentMode(false);
   msgEl.textContent =
-    "按「開始」或方向鍵/WASD開始｜手機：底部方向鍵或滑動畫布｜Space 暫停｜死亡後按任意鍵/點一下重開";
+    "按「開始」或方向鍵/WASD開始｜手機：搖桿拖曳或滑動畫布｜Space 暫停｜死亡後按任意鍵/碰搖桿/點一下重開";
 });
 
 // 重新開始按鈕：回到模式選單
@@ -246,9 +197,7 @@ restartBtn.addEventListener("click", () => {
   menuEl.classList.remove("hidden");
   gameUIEl.classList.add("hidden");
   resetMenuUI();
-
-  elapsedMs = 0;
-  lastTimeStamp = null;
+  elapsedMs = 0; lastTimeStamp = null;
   updateTimeUI();
 });
 
@@ -260,28 +209,20 @@ function ensureAudio() {
   }
   if (audioCtx.state === "suspended") audioCtx.resume();
 }
-
 function playEatSoundNormal() {
   if (!audioCtx) return;
   const now = audioCtx.currentTime;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-
   osc.type = "triangle";
   osc.frequency.setValueAtTime(650, now);
   osc.frequency.exponentialRampToValueAtTime(900, now + 0.06);
-
   gain.gain.setValueAtTime(0.0001, now);
   gain.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
-
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc.start(now);
-  osc.stop(now + 0.10);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(now); osc.stop(now + 0.10);
 }
-
 function playEatSoundGold() {
   if (!audioCtx) return;
   const now = audioCtx.currentTime;
@@ -290,58 +231,38 @@ function playEatSoundGold() {
   const gain1 = audioCtx.createGain();
   osc1.type = "sine";
   osc1.frequency.setValueAtTime(880, now);
-
   gain1.gain.setValueAtTime(0.0001, now);
   gain1.gain.exponentialRampToValueAtTime(0.13, now + 0.01);
   gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.10);
-
-  osc1.connect(gain1);
-  gain1.connect(audioCtx.destination);
-
-  osc1.start(now);
-  osc1.stop(now + 0.12);
+  osc1.connect(gain1); gain1.connect(audioCtx.destination);
+  osc1.start(now); osc1.stop(now + 0.12);
 
   const osc2 = audioCtx.createOscillator();
   const gain2 = audioCtx.createGain();
   osc2.type = "sine";
   osc2.frequency.setValueAtTime(1320, now + 0.06);
-
   gain2.gain.setValueAtTime(0.0001, now + 0.06);
   gain2.gain.exponentialRampToValueAtTime(0.11, now + 0.07);
   gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-
-  osc2.connect(gain2);
-  gain2.connect(audioCtx.destination);
-
-  osc2.start(now + 0.06);
-  osc2.stop(now + 0.18);
+  osc2.connect(gain2); gain2.connect(audioCtx.destination);
+  osc2.start(now + 0.06); osc2.stop(now + 0.18);
 }
-
 function playDeathSound() {
   if (!audioCtx) return;
   const now = audioCtx.currentTime;
-
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-
   osc.type = "square";
   osc.frequency.setValueAtTime(220, now);
   osc.frequency.exponentialRampToValueAtTime(110, now + 0.22);
-
   gain.gain.setValueAtTime(0.0001, now);
   gain.gain.exponentialRampToValueAtTime(0.15, now + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
-
   const filter = audioCtx.createBiquadFilter();
   filter.type = "lowpass";
   filter.frequency.setValueAtTime(700, now);
-
-  osc.connect(filter);
-  filter.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc.start(now);
-  osc.stop(now + 0.30);
+  osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(now); osc.stop(now + 0.30);
 }
 
 // -------------------- Utils --------------------
@@ -351,18 +272,12 @@ function samePos(a, b) { return a.x === b.x && a.y === b.y; }
 function stopAllLoopsAndAnims() {
   if (loopId) clearInterval(loopId);
   loopId = null;
-
   if (explosionAnimId) cancelAnimationFrame(explosionAnimId);
   explosionAnimId = null;
-
   particles = [];
-
   stopTimerUI();
 }
-
-function currentModeName() {
-  return gameMode === "classic" ? "經典版" : "現代版";
-}
+function currentModeName() { return gameMode === "classic" ? "經典版" : "現代版"; }
 
 // -------------------- Food --------------------
 function spawnFood() {
@@ -379,11 +294,7 @@ function spawnFood() {
 
 // -------------------- Reset / Start --------------------
 function resetGame() {
-  snake = [
-    { x: 8, y: 10 },
-    { x: 7, y: 10 },
-    { x: 6, y: 10 }
-  ];
+  snake = [{ x: 8, y: 10 }, { x: 7, y: 10 }, { x: 6, y: 10 }];
   dir = { x: 1, y: 0 };
   nextDir = { x: 1, y: 0 };
 
@@ -405,9 +316,8 @@ function resetGame() {
   updateBestDisplay();
 
   msgEl.textContent =
-    `${currentModeName()}｜鍵盤：方向鍵/WASD｜手機：底部方向鍵或滑動畫布｜Space暫停｜死亡後按任意鍵/點一下重開`;
+    `${currentModeName()}｜鍵盤：方向鍵/WASD｜手機：搖桿拖曳或滑動畫布｜Space暫停｜死亡後按任意鍵/碰搖桿/點一下重開`;
 }
-
 function restartCurrentMode(autoStart) {
   if (!gameMode) return;
   stopAllLoopsAndAnims();
@@ -434,7 +344,6 @@ function drawGrid() {
   }
   ctx.restore();
 }
-
 function drawEatFlashEffect() {
   if (eatFlashFrames <= 0) return;
   ctx.save();
@@ -442,7 +351,6 @@ function drawEatFlashEffect() {
   ctx.globalAlpha = alpha;
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   ctx.globalAlpha = alpha * 1.2;
   ctx.lineWidth = 8;
   ctx.strokeStyle = "white";
@@ -450,7 +358,6 @@ function drawEatFlashEffect() {
   ctx.restore();
   eatFlashFrames -= 1;
 }
-
 function drawGameOverText() {
   if (!showGameOver) return;
   ctx.save();
@@ -461,10 +368,9 @@ function drawGameOverText() {
   ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
   ctx.font = "20px system-ui, sans-serif";
   ctx.fillStyle = "black";
-  ctx.fillText("按任意鍵 / 點一下 重新開始", canvas.width / 2, canvas.height / 2 + 56);
+  ctx.fillText("按任意鍵 / 點一下 / 碰搖桿 重新開始", canvas.width / 2, canvas.height / 2 + 56);
   ctx.restore();
 }
-
 function drawPausedText() {
   if (!paused || !running || dead || showGameOver) return;
   ctx.save();
@@ -477,7 +383,6 @@ function drawPausedText() {
   ctx.fillText("按 Space 繼續", canvas.width / 2, canvas.height / 2 + 44);
   ctx.restore();
 }
-
 function drawGameScene() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawGrid();
@@ -505,7 +410,6 @@ function drawParticles() {
     ctx.restore();
   }
 }
-
 function createExplosionFromSnake() {
   particles = [];
   const baseColors = ["#2b6cb0", "#63b3ed"];
@@ -534,7 +438,6 @@ function createExplosionFromSnake() {
     }
   }
 }
-
 function startExplosionAnimation() {
   if (explosionAnimId) cancelAnimationFrame(explosionAnimId);
   const gravity = 0.18;
@@ -548,7 +451,6 @@ function startExplosionAnimation() {
       p.vy += gravity;
       p.vx *= friction;
       p.vy *= friction;
-
       p.x += p.vx;
       p.y += p.vy;
 
@@ -571,7 +473,6 @@ function startExplosionAnimation() {
       drawGameScene();
     }
   }
-
   explosionAnimId = requestAnimationFrame(frame);
 }
 
@@ -599,7 +500,7 @@ function gameOver(reasonText) {
   createExplosionFromSnake();
   startExplosionAnimation();
 
-  msgEl.textContent = `Game Over（${currentModeName()}）｜按任意鍵/點一下重開`;
+  msgEl.textContent = `Game Over（${currentModeName()}）｜按任意鍵/點一下/碰搖桿重開`;
   if (reasonText) msgEl.textContent += `｜${reasonText}`;
 }
 
@@ -646,7 +547,6 @@ function step() {
       score += 3;
       scoreEl.textContent = score;
       playEatSoundGold();
-
       const tail = snake[snake.length - 1];
       snake.push({ x: tail.x, y: tail.y });
       snake.push({ x: tail.x, y: tail.y });
@@ -685,24 +585,20 @@ function startMoveLoop() {
   startTimerUI();
 
   msgEl.textContent =
-    `${currentModeName()} 遊戲中｜鍵盤：方向鍵/WASD｜手機：底部方向鍵或滑動畫布｜Space 暫停`;
+    `${currentModeName()} 遊戲中｜鍵盤：方向鍵/WASD｜手機：搖桿拖曳或滑動畫布｜Space 暫停`;
 }
 
-function startGameBtn() {
+startBtn.addEventListener("click", () => {
   if (running) return;
   startMoveLoop();
-}
-
-startBtn.addEventListener("click", startGameBtn);
+});
 
 speedSelect.addEventListener("change", () => {
   if (running) startMoveLoop();
 });
 
 // -------------------- Input (Keyboard + Touch) --------------------
-function isOpposite(a, b) {
-  return a.x + b.x === 0 && a.y + b.y === 0;
-}
+function isOpposite(a, b) { return a.x + b.x === 0 && a.y + b.y === 0; }
 
 function applyDir(newDir, autoStartIfNeeded) {
   if (dead) {
@@ -751,34 +647,15 @@ window.addEventListener("keydown", (e) => {
   }
 
   if (paused) {
-    if (e.key.startsWith("Arrow") || ["w","a","s","d","W","A","S","D"].includes(e.key)) {
-      e.preventDefault();
-    }
+    if (e.key.startsWith("Arrow") || ["w","a","s","d","W","A","S","D"].includes(e.key)) e.preventDefault();
     return;
   }
 
   const newDir = keyToDir(e);
   if (!newDir) return;
-
   applyDir(newDir, true);
   e.preventDefault();
 });
-
-// Touch buttons
-function bindTouchButton(btn, dirObj) {
-  if (!btn) return;
-  btn.addEventListener("pointerdown", (e) => {
-    if (gameUIEl.classList.contains("hidden")) return;
-    ensureAudio();
-    applyDir(dirObj, true);
-    e.preventDefault();
-  });
-}
-
-bindTouchButton(btnUp, { x: 0, y: -1 });
-bindTouchButton(btnDown, { x: 0, y: 1 });
-bindTouchButton(btnLeft, { x: -1, y: 0 });
-bindTouchButton(btnRight, { x: 1, y: 0 });
 
 // Touch swipe on canvas
 let swipeStart = null;
@@ -828,6 +705,98 @@ canvas.addEventListener("pointerup", (e) => {
   swipeStart = null;
   e.preventDefault();
 });
+
+// -------------------- Virtual Joystick --------------------
+(function initJoystick() {
+  if (!joystickEl || !joyKnobEl) return;
+
+  let active = false;
+  let pointerId = null;
+
+  function setKnob(dx, dy) {
+    joyKnobEl.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px)`;
+  }
+
+  function resetKnob() {
+    joyKnobEl.style.transform = "translate(-50%, -50%)";
+  }
+
+  function vecToDir(dx, dy) {
+    // ✅ 方向門檻：太小就不算（避免亂跳）
+    const deadZone = 10;
+    if (Math.hypot(dx, dy) < deadZone) return null;
+
+    // ✅ 用角度決定上下左右（四方向）
+    if (Math.abs(dx) > Math.abs(dy)) {
+      return dx > 0 ? { x: 1, y: 0 } : { x: -1, y: 0 };
+    } else {
+      return dy > 0 ? { x: 0, y: 1 } : { x: 0, y: -1 };
+    }
+  }
+
+  function handleMove(clientX, clientY) {
+    const rect = joystickEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    let dx = clientX - cx;
+    let dy = clientY - cy;
+
+    // ✅ 限制搖桿最大位移
+    const max = rect.width * 0.30; // 大約半徑的 30%
+    const dist = Math.hypot(dx, dy);
+    if (dist > max) {
+      dx = (dx / dist) * max;
+      dy = (dy / dist) * max;
+    }
+
+    setKnob(dx, dy);
+
+    const newDir = vecToDir(dx, dy);
+    if (newDir) {
+      ensureAudio();
+      applyDir(newDir, true);
+    }
+  }
+
+  joystickEl.addEventListener("pointerdown", (e) => {
+    if (gameUIEl.classList.contains("hidden")) return;
+
+    ensureAudio();
+
+    // ✅ 死亡後碰搖桿：直接重開
+    if (dead) {
+      restartCurrentMode(true);
+      e.preventDefault();
+      return;
+    }
+
+    active = true;
+    pointerId = e.pointerId;
+    joystickEl.setPointerCapture(pointerId);
+    handleMove(e.clientX, e.clientY);
+    e.preventDefault();
+  });
+
+  joystickEl.addEventListener("pointermove", (e) => {
+    if (!active) return;
+    if (e.pointerId !== pointerId) return;
+    handleMove(e.clientX, e.clientY);
+    e.preventDefault();
+  });
+
+  function end(e) {
+    if (!active) return;
+    if (e.pointerId !== pointerId) return;
+
+    active = false;
+    pointerId = null;
+    resetKnob();
+  }
+
+  joystickEl.addEventListener("pointerup", end);
+  joystickEl.addEventListener("pointercancel", end);
+})();
 
 // -------------------- Boot --------------------
 loadBestScores();
