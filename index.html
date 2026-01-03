@@ -66,11 +66,11 @@
       <div class="menu-info">
         <div class="info-item">
           <div class="info-title">操作</div>
-          <div class="info-text">鍵盤：方向鍵 / WASD｜手機：底部方向鍵或滑動畫布</div>
+          <div class="info-text">鍵盤：方向鍵 / WASD｜手機：虛擬搖桿拖曳或滑動畫布</div>
         </div>
         <div class="info-item">
           <div class="info-title">提示</div>
-          <div class="info-text">死亡後按任意鍵 / 點一下畫面 / 按觸控方向鍵可直接重開</div>
+          <div class="info-text">死亡後按任意鍵 / 點一下畫面 / 碰搖桿即可重開</div>
         </div>
       </div>
 
@@ -102,19 +102,17 @@
       <button id="restartBtn" type="button">重新開始</button>
     </div>
 
-    <!-- ✅ 手機自動縮放：用容器包住 -->
     <div class="stage">
       <canvas id="game" width="480" height="480"></canvas>
     </div>
 
-    <!-- ✅ 十字排列、集中更大，單手好按 -->
-    <div class="touch-dock" aria-label="觸控方向鍵">
-      <div class="touch-pad">
-        <button id="btnUp" class="touch-btn up" type="button" aria-label="上">▲</button>
-        <button id="btnLeft" class="touch-btn left" type="button" aria-label="左">◀</button>
-        <button id="btnDown" class="touch-btn down" type="button" aria-label="下">▼</button>
-        <button id="btnRight" class="touch-btn right" type="button" aria-label="右">▶</button>
+    <!-- ✅ 虛擬搖桿 -->
+    <div class="touch-dock" aria-label="虛擬搖桿">
+      <div id="joystick" class="joystick" role="application" aria-label="搖桿">
+        <div class="joy-base"></div>
+        <div id="joyKnob" class="joy-knob"></div>
       </div>
+      <div class="joy-hint">拖曳搖桿控制方向（放開回中）</div>
     </div>
 
     <p id="msg">請先選模式並按「開始 START」。</p>
