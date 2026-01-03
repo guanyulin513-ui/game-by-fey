@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>貪吃蛇 Snake</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 浮水印（會動、會反彈、碰到內容會隱形） -->
+  <div id="watermark" class="watermark">林冠宇製作</div>
+
+  <h1>貪吃蛇 Snake</h1>
+
+  <!-- 起始選單 -->
+  <div id="menu" class="menu">
+    <div class="menu-card" id="menuCard">
+      <div class="menu-header">
+        <div class="badge">MODE SELECT</div>
+        <h2>選擇玩法模式</h2>
+        <p class="subtitle">選好模式後按「開始 START」開始遊戲</p>
+      </div>
+
+      <div class="mode-options">
+        <button class="mode-btn" data-mode="modern" type="button" aria-label="現代版">
+          <div class="mode-top">
+            <div class="mode-title">
+              <span class="mode-icon">⚡</span>
+              <span>現代版</span>
+            </div>
+            <div class="mode-check">✓</div>
+          </div>
+
+          <div class="mode-best">最高分：<span id="bestModernCard">0</span></div>
+
+          <ul class="mode-list">
+            <li><b>可穿牆</b></li>
+            <li>紅色食物：<b>+1 分 +1 長度</b></li>
+            <li>金色食物（偶爾）：<b>+3 分 +3 長度</b></li>
+          </ul>
+
+          <div class="mode-tag modern">推薦</div>
+        </button>
+
+        <button class="mode-btn" data-mode="classic" type="button" aria-label="經典版">
+          <div class="mode-top">
+            <div class="mode-title">
+              <span class="mode-icon">🕹️</span>
+              <span>經典版</span>
+            </div>
+            <div class="mode-check">✓</div>
+          </div>
+
+          <div class="mode-best">最高分：<span id="bestClassicCard">0</span></div>
+
+          <ul class="mode-list">
+            <li><b>不可穿牆</b>（撞牆即死亡）</li>
+            <li>只有紅色食物：<b>+1 分 +1 長度</b></li>
+            <li>更像傳統貪吃蛇玩法</li>
+          </ul>
+
+          <div class="mode-tag classic">懷舊</div>
+        </button>
+      </div>
+
+      <div class="menu-info">
+        <div class="info-item">
+          <div class="info-title">操作</div>
+          <div class="info-text">鍵盤：方向鍵 / WASD｜觸控：按下方向鍵或在畫布滑動</div>
+        </div>
+        <div class="info-item">
+          <div class="info-title">提示</div>
+          <div class="info-text">死亡後按任意鍵 / 點一下畫面 / 按觸控方向鍵可直接重開</div>
+        </div>
+      </div>
+
+      <button id="startModeBtn" class="start-btn disabled" type="button">
+        開始 START
+      </button>
+
+      <div class="menu-footnote">Tip：選中卡片後會有外框與勾勾提示</div>
+    </div>
+  </div>
+
+  <!-- 遊戲介面 -->
+  <div id="gameUI" class="hidden">
+    <div class="panel">
+      <div>分數：<span id="score">0</span></div>
+      <div>最高分：<span id="best">0</span></div>
+      <div>時間：<span id="time">00:00</span></div>
+
+      <label>
+        速度：
+        <select id="speed">
+          <option value="160">慢</option>
+          <option value="110" selected>中</option>
+          <option value="80">快</option>
+        </select>
+      </label>
+
+      <button id="startBtn" type="button">開始</button>
+      <button id="restartBtn" type="button">重新開始</button>
+    </div>
+
+    <canvas id="game" width="480" height="480"></canvas>
+
+    <!-- 觸控操控區（D-pad） -->
+    <div class="touch-controls" aria-label="觸控方向鍵">
+      <button id="btnUp" class="touch-btn up" type="button" aria-label="上">▲</button>
+      <button id="btnLeft" class="touch-btn left" type="button" aria-label="左">◀</button>
+      <button id="btnDown" class="touch-btn down" type="button" aria-label="下">▼</button>
+      <button id="btnRight" class="touch-btn right" type="button" aria-label="右">▶</button>
+    </div>
+
+    <p id="msg">請先選模式並按「開始 START」。</p>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
