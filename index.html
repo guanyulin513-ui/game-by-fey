@@ -66,7 +66,7 @@
       <div class="menu-info">
         <div class="info-item">
           <div class="info-title">操作</div>
-          <div class="info-text">鍵盤：方向鍵 / WASD｜觸控：按下方向鍵或在畫布滑動</div>
+          <div class="info-text">鍵盤：方向鍵 / WASD｜手機：底部方向鍵或滑動畫布</div>
         </div>
         <div class="info-item">
           <div class="info-title">提示</div>
@@ -102,14 +102,19 @@
       <button id="restartBtn" type="button">重新開始</button>
     </div>
 
-    <canvas id="game" width="480" height="480"></canvas>
+    <!-- ✅ 手機自動縮放：用容器包住 -->
+    <div class="stage">
+      <canvas id="game" width="480" height="480"></canvas>
+    </div>
 
-    <!-- 觸控操控區（D-pad） -->
-    <div class="touch-controls" aria-label="觸控方向鍵">
-      <button id="btnUp" class="touch-btn up" type="button" aria-label="上">▲</button>
-      <button id="btnLeft" class="touch-btn left" type="button" aria-label="左">◀</button>
-      <button id="btnDown" class="touch-btn down" type="button" aria-label="下">▼</button>
-      <button id="btnRight" class="touch-btn right" type="button" aria-label="右">▶</button>
+    <!-- ✅ 單手大拇指更好按：底部固定大按鍵 -->
+    <div class="touch-dock" aria-label="觸控方向鍵">
+      <div class="touch-pad">
+        <button id="btnUp" class="touch-btn up" type="button" aria-label="上">▲</button>
+        <button id="btnLeft" class="touch-btn left" type="button" aria-label="左">◀</button>
+        <button id="btnDown" class="touch-btn down" type="button" aria-label="下">▼</button>
+        <button id="btnRight" class="touch-btn right" type="button" aria-label="右">▶</button>
+      </div>
     </div>
 
     <p id="msg">請先選模式並按「開始 START」。</p>
